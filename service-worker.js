@@ -1,18 +1,21 @@
-self.addEventListener('install', function(event) {
+self.addEventListener("install", event => {
   event.waitUntil(
-    caches.open('wardrobe-cache').then(function(cache) {
+    caches.open("wardrobe-cache").then(cache => {
       return cache.addAll([
-        './',
-        './index.html',
-        './manifest.json'
+        "./",
+        "./index.html",
+        "./style.css",
+        "./script.js",
+        "./icon-192.png",
+        "./icon-512.png"
       ]);
     })
   );
 });
 
-self.addEventListener('fetch', function(event) {
+self.addEventListener("fetch", event => {
   event.respondWith(
-    caches.match(event.request).then(function(response) {
+    caches.match(event.request).then(response => {
       return response || fetch(event.request);
     })
   );
