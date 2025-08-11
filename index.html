@@ -1,0 +1,778 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Wardrobe of Experiences</title>
+<style>
+  :root {
+    --bg-light: #fef9f2;
+    --bg-dark: #121212;
+    --text-light: #222;
+    --text-dark: #eee;
+    --primary: #d9cbb6;
+    --note-color: #a67c00;
+    --handle-color: #b19f82;
+  }
+  body {
+    margin:0; padding:0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: var(--bg-light);
+    color: var(--text-light);
+    transition: background-color 0.3s, color 0.3s;
+    overflow-x: hidden;
+  }
+  body.dark {
+    background-color: var(--bg-dark);
+    color: var(--text-dark);
+  }
+  header {
+    padding: 1rem;
+    background: var(--primary);
+    color: #000;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  header h1 {
+    margin:0; font-size: 1.5rem;
+  }
+  button#toggleTheme {
+    padding: 0.3rem 0.6rem;
+    font-weight: bold;
+    background: #333;
+    border: none;
+    border-radius: 4px;
+    color: #fff;
+    cursor: pointer;
+  }
+  button#toggleTheme:hover {
+    background: #555;
+  }
+  main {
+    max-width: 600px;
+    margin: 1rem auto;
+    padding: 0 1rem 3rem;
+  }
+  #addMemoryBtn {
+    background: var(--primary);
+    border: none;
+    padding: 0.6rem 1rem;
+    font-weight: bold;
+    border-radius: 5px;
+    cursor: pointer;
+    width: 100%;
+    margin-bottom: 1rem;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    transition: background-color 0.3s;
+  }
+  #addMemoryBtn:hover {
+    background: #c4b89d;
+  }
+  #memoriesList {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+  .memoryCard {
+    background: var(--primary);
+    border-radius: 12px;
+    margin-bottom: 1.5rem;
+    padding: 1.2rem 1rem 2rem 1rem;
+    color: #000;
+    cursor: pointer;
+    position: relative;
+    box-shadow:
+      inset 0 -6px 6px -6px rgba(0,0,0,0.3),
+      0 6px 12px rgba(0,0,0,0.12);
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+  }
+  .memoryCard:hover {
+    transform: translateY(-4px);
+    box-shadow:
+      inset 0 -8px 8px -8px rgba(0,0,0,0.4),
+      0 10px 20px rgba(0,0,0,0.2);
+  }
+  .memoryCard::before {
+    content: "";
+    position: absolute;
+    top: 8px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 60px;
+    height: 12px;
+    background: var(--handle-color);
+    border-radius: 8px / 50%;
+    box-shadow:
+      inset 0 3px 4px rgba(255,255,255,0.6),
+      0 2px 3px rgba(0,0,0,0.15);
+  }
+  .colorBadge {
+    position: absolute;
+    top: 8px;
+    right: 10px;
+    width: 24px;
+    height: 24px;
+    border-radius: 6px;
+    border: 2px solid #000;
+    box-shadow: 0 0 4px rgba(0,0,0,0.2);
+  }
+
+  #memoryDetail {
+    display: none;
+    border-radius: 16px;
+    padding: 1.2rem 1.2rem 1.5rem 1.2rem;
+    color: #000;
+    position: relative;
+    box-shadow:
+      0 8px 18px rgba(0,0,0,0.22);
+    animation: openDrawer 0.35s ease forwards;
+    background-color: var(--primary);
+    background-size: cover;
+    background-position: center;
+  }
+  #memoryDetail.dark {
+    color: #eee;
+  }
+  #memoryDetail::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: rgba(0,0,0,0.3);
+    border-radius: 16px;
+    pointer-events: none;
+    z-index: 0;
+    transition: background 0.3s;
+  }
+  #memoryDetail.dark::before {
+    background: rgba(0,0,0,0.6);
+  }
+  @keyframes openDrawer {
+    0% {
+      opacity: 0;
+      transform: translateY(30px);
+    }
+    100% {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  #memoryDetail h2 {
+    margin-top: 0;
+    position: relative;
+    z-index: 1;
+  }
+  #memoryDetail textarea, #memoryDetail input[type="text"], #memoryDetail input[type="url"], #memoryDetail input[type="color"], #memoryDetail select {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    padding: 0.5rem;
+    margin-bottom: 0.8rem;
+    border-radius: 8px;
+    border: 1px solid #aaa;
+    font-size: 1rem;
+    resize: vertical;
+    box-shadow: inset 1px 1px 5px rgba(0,0,0,0.05);
+    background-color: rgba(255 255 255 / 0.85);
+    color: #000;
+  }
+  #memoryDetail.dark textarea, #memoryDetail.dark input[type="text"], #memoryDetail.dark input[type="url"], #memoryDetail.dark input[type="color"], #memoryDetail.dark select {
+    background-color: rgba(30 30 30 / 0.8);
+    color: #eee;
+    border: 1px solid #555;
+  }
+  #memoryDetail img {
+    position: relative;
+    z-index: 1;
+    max-width: 100%;
+    max-height: 180px;
+    margin-bottom: 0.8rem;
+    border-radius: 12px;
+    object-fit: cover;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+  }
+  #memoryDetail button {
+    position: relative;
+    z-index: 1;
+    padding: 0.5rem 1.2rem;
+    font-weight: 600;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    margin-right: 0.5rem;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+    transition: background-color 0.25s;
+  }
+  #saveMemoryBtn {
+    background: #28a745;
+    color: #fff;
+  }
+  #saveMemoryBtn:hover {
+    background: #218838;
+  }
+  #cancelMemoryBtn {
+    background: #dc3545;
+    color: #fff;
+  }
+  #cancelMemoryBtn:hover {
+    background: #c82333;
+  }
+  #playMusicBtn {
+    background: #007bff;
+    color: #fff;
+    margin-bottom: 1rem;
+  }
+  #playMusicBtn:hover {
+    background: #0069d9;
+  }
+  #deleteMemoryBtn {
+    background: #a83232;
+    color: #fff;
+  }
+  #deleteMemoryBtn:hover {
+    background: #8b2828;
+  }
+  #notesAnimation {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    overflow: visible;
+    z-index: 1;
+  }
+  .note {
+    position: absolute;
+    width: 22px;
+    height: 22px;
+    background: var(--note-color);
+    border-radius: 8px 8px 8px 0;
+    transform: rotate(45deg);
+    opacity: 0.85;
+    animation: floatUp 3s linear infinite;
+  }
+  @keyframes floatUp {
+    0% {
+      transform: translateY(100%) rotate(45deg);
+      opacity: 0.85;
+    }
+    100% {
+      transform: translateY(-150%) rotate(45deg);
+      opacity: 0;
+    }
+  }
+  #youtubePlayer {
+    width: 100%;
+    height: 180px;
+    border-radius: 12px;
+    margin-bottom: 1rem;
+    display: none;
+  }
+  /* Galerie fundaluri */
+  #bgGallery {
+    position: relative;
+    z-index: 2;
+    margin-bottom: 0.8rem;
+    display: flex;
+    gap: 0.6rem;
+    flex-wrap: wrap;
+  }
+  #bgGallery img {
+    width: 60px;
+    height: 40px;
+    border-radius: 8px;
+    object-fit: cover;
+    cursor: pointer;
+    border: 3px solid transparent;
+    box-shadow: 0 1px 5px rgba(0,0,0,0.15);
+    transition: border-color 0.3s;
+  }
+  #bgGallery img.selected {
+    border-color: #007bff;
+  }
+  /* Selector animații */
+  #animationSelector {
+    position: relative;
+    z-index: 1;
+    margin-bottom: 0.8rem;
+  }
+  #animationSelector label {
+    display: block;
+    margin-bottom: 0.3rem;
+    font-weight: bold;
+  }
+  #animationSelector select {
+    width: 100%;
+    padding: 0.5rem;
+    border-radius: 8px;
+    border: 1px solid #aaa;
+    background-color: rgba(255 255 255 / 0.85);
+    color: #000;
+    font-size: 1rem;
+  }
+  #memoryDetail.dark #animationSelector select {
+    background-color: rgba(30 30 30 / 0.8);
+    color: #eee;
+    border: 1px solid #555;
+  }
+  /* Animatii CSS */
+  /* Flori */
+  .flower {
+    position: absolute;
+    width: 20px; height: 20px;
+    background: #ff69b4;
+    border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+    box-shadow:
+      0 -8px 0 -2px #ff1493,
+      8px 0 0 -2px #ff1493,
+      0 8px 0 -2px #ff1493,
+      -8px 0 0 -2px #ff1493;
+    opacity: 0.7;
+    animation: floatUpFlowers 4s linear infinite;
+  }
+  @keyframes floatUpFlowers {
+    0% {transform: translateY(100%) rotate(0deg); opacity:0;}
+    20% {opacity: 0.7;}
+    100% {transform: translateY(-150%) rotate(360deg); opacity:0;}
+  }
+  /* Picuri apă */
+  .waterdrop {
+    position: absolute;
+    width: 14px; height: 20px;
+    background: #00bfff;
+    border-radius: 50% 50% 50% 50% / 70% 70% 30% 30%;
+    opacity: 0.6;
+    animation: floatUpWater 3.5s linear infinite;
+  }
+  @keyframes floatUpWater {
+    0% {transform: translateY(100%) scale(0.5);}
+    50% {opacity: 0.9;}
+    100% {transform: translateY(-150%) scale(1); opacity:0;}
+  }
+  /* Inimioare */
+  .heart {
+    position: absolute;
+    width: 20px; height: 18px;
+    background: red;
+    transform: rotate(-45deg);
+    opacity: 0.75;
+    animation: floatUpHearts 3.8s linear infinite;
+  }
+  .heart::before, .heart::after {
+    content: "";
+    position: absolute;
+    width: 20px; height: 18px;
+    background: red;
+    border-radius: 50%;
+  }
+  .heart::before {
+    top: -10px; left: 0;
+  }
+  .heart::after {
+    top: 0; left: 10px;
+  }
+  @keyframes floatUpHearts {
+    0% {transform: translateY(100%) rotate(-45deg); opacity: 0;}
+    20% {opacity: 0.75;}
+    100% {transform: translateY(-150%) rotate(-45deg); opacity: 0;}
+  }
+  /* Stele */
+  .star {
+    position: absolute;
+    width: 20px; height: 20px;
+    background: yellow;
+    clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
+    opacity: 0.8;
+    animation: floatUpStars 4s linear infinite;
+  }
+  @keyframes floatUpStars {
+    0% {transform: translateY(100%) rotate(0deg); opacity: 0;}
+    20% {opacity: 0.8;}
+    100% {transform: translateY(-150%) rotate(360deg); opacity: 0;}
+  }
+  /* Note muzicale */
+  .musicNote {
+    position: absolute;
+    width: 16px; height: 24px;
+    border-left: 3px solid black;
+    border-bottom: 6px solid black;
+    border-radius: 0 0 6px 6px;
+    opacity: 0.85;
+    animation: floatUpMusic 3.2s linear infinite;
+  }
+  .musicNote::before {
+    content: "";
+    position: absolute;
+    top: -8px; left: 4px;
+    width: 10px; height: 10px;
+    background: black;
+    border-radius: 50%;
+  }
+  @keyframes floatUpMusic {
+    0% {transform: translateY(100%) rotate(0deg); opacity: 0;}
+    20% {opacity: 0.85;}
+    100% {transform: translateY(-150%) rotate(15deg); opacity: 0;}
+  }
+  /* Planete */
+  .planet {
+    position: absolute;
+    width: 22px; height: 22px;
+    background: #7f8c8d;
+    border-radius: 50%;
+    box-shadow:
+      inset -4px -4px 6px #bdc3c7,
+      inset 4px 4px 6px #34495e;
+    opacity: 0.85;
+    animation: floatUpPlanets 4.2s linear infinite;
+  }
+  .planet::after {
+    content: "";
+    position: absolute;
+    top: 10px; left: -6px;
+    width: 34px; height: 6px;
+    border-radius: 10px / 50%;
+    background: #95a5a6;
+    box-shadow: inset 0 0 8px #7f8c8d;
+    transform: rotate(25deg);
+  }
+  @keyframes floatUpPlanets {
+    0% {transform: translateY(100%) rotate(0deg); opacity: 0;}
+    20% {opacity: 0.85;}
+    100% {transform: translateY(-150%) rotate(360deg); opacity: 0;}
+  }
+  /* Emoji fețe */
+  .emojiFace {
+    position: absolute;
+    font-size: 22px;
+    animation: floatUpEmoji 3.6s linear infinite;
+    opacity: 0.85;
+  }
+  @keyframes floatUpEmoji {
+    0% {transform: translateY(100%) rotate(0deg); opacity: 0;}
+    20% {opacity: 0.85;}
+    100% {transform: translateY(-150%) rotate(360deg); opacity: 0;}
+  }
+  /* Pisicuțe */
+  .emojiCat {
+    position: absolute;
+    font-size: 24px;
+    animation: floatUpEmoji 3.8s linear infinite;
+    opacity: 0.85;
+  }
+  /* Linie separatoare sub selector */
+  #animationSelector {
+    border-bottom: 1px solid #aaa;
+    padding-bottom: 0.8rem;
+  }
+</style>
+</head>
+<body>
+<header>
+  <h1>Wardrobe of Experiences</h1>
+  <button id="toggleTheme">Dark Mode</button>
+</header>
+<main>
+  <button id="addMemoryBtn">Adaugă amintire nouă</button>
+  <ul id="memoriesList"></ul>
+
+  <div id="memoryDetail" aria-live="polite">
+    <h2>Detalii amintire</h2>
+    <input type="text" id="memoryTitle" placeholder="Titlu amintire" />
+    <textarea id="memoryText" rows="4" placeholder="Scrie amintirea ta aici..."></textarea>
+    <label for="musicLink">Link YouTube muzică</label>
+    <input type="url" id="musicLink" placeholder="Ex: https://youtu.be/abcdef12345" />
+    
+    <div id="bgGallery" aria-label="Galerie fundaluri tematice" role="list">
+      <img src="https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=80&q=80" alt="Pădure" title="Pădure" data-url="https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=600&q=80" role="listitem" />
+      <img src="https://images.unsplash.com/photo-1470770841072-f978cf4d019e?auto=format&fit=crop&w=80&q=80" alt="Cer senin" title="Cer senin" data-url="https://images.unsplash.com/photo-1470770841072-f978cf4d019e?auto=format&fit=crop&w=600&q=80" role="listitem" />
+      <img src="https://images.unsplash.com/photo-1445820134901-f3e1ff13e84d?auto=format&fit=crop&w=80&q=80" alt="Munți" title="Munți" data-url="https://images.unsplash.com/photo-1445820134901-f3e1ff13e84d?auto=format&fit=crop&w=600&q=80" role="listitem" />
+      <img src="https://images.unsplash.com/photo-1500534623283-312aade485b7?auto=format&fit=crop&w=80&q=80" alt="Flori" title="Flori" data-url="https://images.unsplash.com/photo-1500534623283-312aade485b7?auto=format&fit=crop&w=600&q=80" role="listitem" />
+      <img src="https://images.unsplash.com/photo-1502082553048-f009c37129b9?auto=format&fit=crop&w=80&q=80" alt="Apă" title="Apă" data-url="https://images.unsplash.com/photo-1502082553048-f009c37129b9?auto=format&fit=crop&w=600&q=80" role="listitem" />
+    </div>
+    <input type="color" id="colorPicker" title="Alege culoarea sertarului" />
+    <input type="file" id="bgImageInput" accept="image/*" aria-label="Încarcă imagine fundal" />
+    <img id="bgPreview" alt="Previzualizare fundal" style="display:none" />
+    
+    <div id="animationSelector">
+      <label for="animationChoice">Alege animația laterală</label>
+      <select id="animationChoice" aria-label="Selector animații">
+        <option value="none">Fără animație</option>
+        <option value="flower">Flori 🌸</option>
+        <option value="waterdrop">Picuri de apă 💧</option>
+        <option value="heart">Inimioare ❤️</option>
+        <option value="star">Stele ⭐</option>
+        <option value="musicNote">Note muzicale 🎵</option>
+        <option value="planet">Planete 🪐</option>
+        <option value="emojiFace">Emoji fețe 😀</option>
+        <option value="emojiCat">Pisicuțe 🐱</option>
+      </select>
+    </div>
+
+    <button id="playMusicBtn">Redă muzica</button>
+    <iframe id="youtubePlayer" src="" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+    <br/>
+    <button id="saveMemoryBtn">Salvează</button>
+    <button id="cancelMemoryBtn">Anulează</button>
+    <button id="deleteMemoryBtn">Șterge amintirea</button>
+    <div id="notesAnimation"></div>
+  </div>
+</main>
+
+<script>
+  const memoriesList = document.getElementById('memoriesList');
+  const addMemoryBtn = document.getElementById('addMemoryBtn');
+  const memoryDetail = document.getElementById('memoryDetail');
+  const memoryTitle = document.getElementById('memoryTitle');
+  const memoryText = document.getElementById('memoryText');
+  const musicLink = document.getElementById('musicLink');
+  const colorPicker = document.getElementById('colorPicker');
+  const bgImageInput = document.getElementById('bgImageInput');
+  const bgPreview = document.getElementById('bgPreview');
+  const playMusicBtn = document.getElementById('playMusicBtn');
+  const youtubePlayer = document.getElementById('youtubePlayer');
+  const saveMemoryBtn = document.getElementById('saveMemoryBtn');
+  const cancelMemoryBtn = document.getElementById('cancelMemoryBtn');
+  const deleteMemoryBtn = document.getElementById('deleteMemoryBtn');
+  const notesAnimation = document.getElementById('notesAnimation');
+  const toggleThemeBtn = document.getElementById('toggleTheme');
+  const bgGallery = document.getElementById('bgGallery');
+  const animationChoice = document.getElementById('animationChoice');
+  const body = document.body;
+
+  let memories = JSON.parse(localStorage.getItem('memories')) || [];
+  let editingIndex = null;
+  let themeDark = false;
+  let isPlaying = false;
+  let selectedBgUrl = ''; // link fundal tematic selectat
+
+  function saveMemories() {
+    localStorage.setItem('memories', JSON.stringify(memories));
+  }
+
+  function renderMemories() {
+    memoriesList.innerHTML = '';
+    memories.forEach((mem, index) => {
+      const li = document.createElement('li');
+      li.className = 'memoryCard';
+      li.style.backgroundColor = mem.color || 'var(--primary)';
+      li.textContent = mem.title || 'Amintire fără titlu';
+      const badge = document.createElement('div');
+      badge.className = 'colorBadge';
+      badge.style.backgroundColor = mem.color || 'var(--primary)';
+      li.appendChild(badge);
+      li.onclick = () => openMemoryDetail(index);
+      memoriesList.appendChild(li);
+    });
+  }
+
+  function openMemoryDetail(index) {
+    editingIndex = index;
+    const mem = memories[index];
+    memoryTitle.value = mem.title || '';
+    memoryText.value = mem.text || '';
+    musicLink.value = mem.music || '';
+    colorPicker.value = mem.color || '#d9cbb6';
+    selectedBgUrl = mem.bgImage || '';
+    animationChoice.value = mem.animation || 'none';
+    updateBackgroundDisplay();
+    youtubePlayer.style.display = 'none';
+    youtubePlayer.src = '';
+    notesAnimation.innerHTML = '';
+    isPlaying = false;
+    playMusicBtn.textContent = 'Redă muzica';
+    memoryDetail.style.display = 'block';
+    memoryDetail.classList.toggle('dark', themeDark);
+    document.body.scrollTop = 0;
+    document.documentElement.scrollTop = 0;
+  }
+
+  function updateBackgroundDisplay(){
+    if(bgPreview.style.display !== 'none' && bgPreview.src){
+      memoryDetail.style.backgroundImage = `url(${bgPreview.src})`;
+    } else if(selectedBgUrl){
+      memoryDetail.style.backgroundImage = `url(${selectedBgUrl})`;
+    } else {
+      memoryDetail.style.backgroundImage = 'none';
+      memoryDetail.style.backgroundColor = colorPicker.value;
+    }
+  }
+
+  function closeMemoryDetail() {
+    memoryDetail.style.display = 'none';
+    editingIndex = null;
+    stopMusic();
+    notesAnimation.innerHTML = '';
+  }
+
+  function stopMusic() {
+    youtubePlayer.style.display = 'none';
+    youtubePlayer.src = '';
+    isPlaying = false;
+    playMusicBtn.textContent = 'Redă muzica';
+    stopNotesAnimation();
+  }
+
+  addMemoryBtn.onclick = () => {
+    editingIndex = null;
+    memoryTitle.value = '';
+    memoryText.value = '';
+    musicLink.value = '';
+    colorPicker.value = '#d9cbb6';
+    selectedBgUrl = '';
+    animationChoice.value = 'none';
+    bgPreview.style.display = 'none';
+    bgPreview.src = '';
+    stopMusic();
+    notesAnimation.innerHTML = '';
+    memoryDetail.style.display = 'block';
+    memoryDetail.classList.toggle('dark', themeDark);
+    updateBackgroundDisplay();
+  };
+
+  saveMemoryBtn.onclick = () => {
+    if(!memoryTitle.value.trim()){
+      alert('Titlul este obligatoriu!');
+      return;
+    }
+    const memObj = {
+      title: memoryTitle.value.trim(),
+      text: memoryText.value.trim(),
+      music: musicLink.value.trim(),
+      color: colorPicker.value,
+      bgImage: bgPreview.style.display !== 'none' ? bgPreview.src : selectedBgUrl,
+      animation: animationChoice.value
+    };
+    if(editingIndex !== null){
+      memories[editingIndex] = memObj;
+    } else {
+      memories.push(memObj);
+    }
+    saveMemories();
+    renderMemories();
+    closeMemoryDetail();
+  };
+
+  cancelMemoryBtn.onclick = () => {
+    closeMemoryDetail();
+  };
+
+  deleteMemoryBtn.onclick = () => {
+    if(editingIndex === null) return;
+    if(confirm('Sigur dorești să ștergi această amintire?')){
+      memories.splice(editingIndex, 1);
+      saveMemories();
+      renderMemories();
+      closeMemoryDetail();
+    }
+  };
+
+  bgImageInput.onchange = (e) => {
+    const file = e.target.files[0];
+    if(file){
+      const reader = new FileReader();
+      reader.onload = () => {
+        bgPreview.src = reader.result;
+        bgPreview.style.display = 'block';
+        selectedBgUrl = ''; // anulăm selecția tematică dacă adaugi imagine proprie
+        updateBackgroundDisplay();
+        clearGallerySelection();
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  playMusicBtn.onclick = () => {
+    if(!musicLink.value.trim()){
+      alert('Te rog introdu un link valid de YouTube!');
+      return;
+    }
+    if(!isPlaying){
+      const ytId = parseYouTubeID(musicLink.value.trim());
+      if(!ytId){
+        alert('Link YouTube invalid!');
+        return;
+      }
+      youtubePlayer.src = `https://www.youtube.com/embed/${ytId}?autoplay=1&loop=1&playlist=${ytId}&controls=1`;
+      youtubePlayer.style.display = 'block';
+      playMusicBtn.textContent = 'Oprește muzica';
+      isPlaying = true;
+      startNotesAnimation(animationChoice.value);
+    } else {
+      stopMusic();
+    }
+  };
+
+  toggleThemeBtn.onclick = () => {
+    themeDark = !themeDark;
+    body.classList.toggle('dark', themeDark);
+    memoryDetail.classList.toggle('dark', themeDark);
+    toggleThemeBtn.textContent = themeDark ? 'Light Mode' : 'Dark Mode';
+  };
+
+  function parseYouTubeID(url) {
+    const regex = /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?|shorts)\/|.*[?&]v=)|youtu\.be\/)([a-zA-Z0-9_-]{11})/;
+    const match = url.match(regex);
+    return match ? match[1] : null;
+  }
+
+  // Notes animation for music playing
+  let notesInterval;
+  function createNote(type){
+    const note = document.createElement('div');
+    note.className = '';
+    switch(type){
+      case 'flower': note.className = 'flower'; break;
+      case 'waterdrop': note.className = 'waterdrop'; break;
+      case 'heart': note.className = 'heart'; break;
+      case 'star': note.className = 'star'; break;
+      case 'musicNote': note.className = 'musicNote'; break;
+      case 'planet': note.className = 'planet'; break;
+      case 'emojiFace': 
+        note.className = 'emojiFace';
+        note.textContent = ['😀','😄','😊','😉','😍','😎'][Math.floor(Math.random()*6)];
+        break;
+      case 'emojiCat': 
+        note.className = 'emojiCat';
+        note.textContent = ['🐱','😺','😸','😻','😽','😼'][Math.floor(Math.random()*6)];
+        break;
+      default:
+        note.className = 'note';
+        break;
+    }
+    note.style.left = Math.random()*90 + '%';
+    note.style.animationDuration = (2 + Math.random()*2) + 's';
+    notesAnimation.appendChild(note);
+    setTimeout(() => {
+      if(notesAnimation.contains(note)) notesAnimation.removeChild(note);
+    }, 4000);
+  }
+  function startNotesAnimation(type='note'){
+    notesInterval = setInterval(() => createNote(type), 500);
+  }
+  function stopNotesAnimation(){
+    clearInterval(notesInterval);
+    notesAnimation.innerHTML = '';
+  }
+
+  // Galerie fundaluri click
+  bgGallery.querySelectorAll('img').forEach(img => {
+    img.onclick = () => {
+      selectedBgUrl = img.dataset.url;
+      bgPreview.style.display = 'none';
+      bgPreview.src = '';
+      updateBackgroundDisplay();
+      clearGallerySelection();
+      img.classList.add('selected');
+    };
+  });
+
+  function clearGallerySelection(){
+    bgGallery.querySelectorAll('img').forEach(img => img.classList.remove('selected'));
+  }
+
+  // Initialize
+  renderMemories();
+</script>
+</body>
+</html>
